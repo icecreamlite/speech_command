@@ -8,7 +8,6 @@
 #automate softlink creation
 #study multiprocessing (youtube?) so systrayicon can be in here
 #train pocketsphinx voice
-#make module for executing commands for manual type commands also
 
 """
 To modify dictionary:
@@ -20,13 +19,7 @@ Copy .dic and .lm file to model and rename .dic file to cmudict-en-us.dict
 """
 
 if __name__ == '__main__':
-    from pocketsphinx import LiveSpeech
-    #from os import getpid
-
-    #pidStream = open('/home/b/projects/speech_command/sc_pid.txt', 'w')
-    #pidStream.write(str(getpid()))
-    #pidStream.close()
-    
+    from pocketsphinx import LiveSpeech    
 from subprocess import Popen
 import pyttsx3
 import sys
@@ -74,13 +67,7 @@ trig = {'desktop': deskt,
         'system': syst,
         'bluetooth': bt,
         'ping': ping,
-        'connect': con}
-
-
-#def killTrayIcon():
-    #Popen(['killall', 'show_icon.py'])
-    #for line in open('/home/b/projects/speech_command/show_icon_pid.txt', 'r'):
-        #Popen(['kill', f'{int(line)}']) #indent this in if comments are removed     
+        'connect': con}   
 
 def closeProg():
     #killTrayIcon()
@@ -88,16 +75,12 @@ def closeProg():
     engine.say('Goodbye')
     engine.runAndWait()
     Popen([scDir + 'bash_scripts/terminate.sh'])
-    #for line in open('/home/b/projects/speech_command/sc_pid.txt', 'r'):
-        #Popen([scDir + 'bash_scripts/terminate.sh', f'{int(line)}'])
 
 def restartProg():
     Popen(['notify-send', '-t', '5000', 'Voice Command', 'Restarting'])
     engine.say('Restarting')
     engine.runAndWait()   
     Popen([scDir + 'bash_scripts/restart.sh'])
-    #for line in open(scDir + 'sc_pid.txt', 'r'):
-        #Popen([scDir + 'bash_scripts/restart.sh', f'{int(line)}'])
 
 def errorMessage(pArr):
     Popen(['notify-send', '-t', '5000', 'Voice Command', f'Failed: "{" ".join(pArr[1:]).title()}" command does not exist'])
