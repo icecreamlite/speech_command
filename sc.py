@@ -1,5 +1,7 @@
 #!/home/b/projects/speech_command/venv/bin/python3
 
+#create sh for wav
+
 """
 To modify dictionary:
 Add words to train.txt in venv/lib/python3.6/site-packages/pocketsphinx/model
@@ -12,14 +14,9 @@ Copy .dic and .lm file to model and rename .dic file to cmudict-en-us.dict
 if __name__ == '__main__':
     from pocketsphinx import LiveSpeech    
 from subprocess import Popen
-import pyttsx3
 import sys
 
 isOpen = False #check if icon is open
-
-engine = pyttsx3.init() #initialize text to speech
-engine.setProperty('volume', 1)
-engine.setProperty('rate', 170)
 
 scDir = '/home/b/projects/speech_command/'
 
@@ -62,21 +59,14 @@ trig = {'desktop': deskt,
 
 def closeProg():
     #killTrayIcon()
-    Popen(['notify-send', '-t', '5000', 'Voice Command', 'Exiting'])
-    engine.say('Goodbye')
-    engine.runAndWait()
-    Popen([scDir + 'bash_scripts/terminate.sh'])
+    Popen([scDir + 'bash_scripts/terminate.sh', '&'])
 
 def restartProg():
-    Popen(['notify-send', '-t', '5000', 'Voice Command', 'Restarting'])
-    engine.say('Restarting')
-    engine.runAndWait()   
-    Popen([scDir + 'bash_scripts/restart.sh'])
+    Popen([scDir + 'bash_scripts/restart.sh', '&'])
 
 def errorMessage(pArr):
-    Popen(['notify-send', '-t', '5000', 'Voice Command', f'Failed: "{" ".join(pArr[1:]).title()}" command does not exist'])
-    engine.say("Failed")
-    engine.runAndWait()
+    Popen(['notify-send', '-t', '3000', 'Voice Command', f'Failed: "{" ".join(pArr[1:]).title()}" command does not exist'])
+    Popen(['/home/b/projects/speech_command/tts.py', 'Failed', '&'])
 
 def trayIconStatus(status):
     if status == 'inactive':
@@ -96,10 +86,9 @@ def trayIconStatus(status):
 def executeVoiceCommand(pArr):     
     try:
         Popen(trig[pArr[1]][pArr[2]])
-        Popen(['notify-send', '-t', '5000', 'Voice Command', \
-              f'"{" ".join(pArr[1:]).title()}"'])        
-        engine.say(' '.join(pArr[1:]))
-        engine.runAndWait()   
+        Popen(['notify-send', '-t', '3000', 'Voice Command', \
+              f'"{" ".join(pArr[1:]).title()}"'])
+        Popen(['/home/b/projects/speech_command/tts.py', f'{" ".join(pArr[1:])}', '&'])       
     except:
         errorMessage(pArr)
 
@@ -108,10 +97,9 @@ def runMain():
     pSplit = [] #initialize command list
     newActivate = True #check if Acer is active
 
-    Popen(['notify-send', '-t', '5000', 'Voice Command', "I'm up!"])
+    Popen(['notify-send', '-t', '3000', 'Voice Command', "I'm up!"])
     trayIconStatus('inactive')
-    engine.say("I'm up!")
-    engine.runAndWait()
+    Popen(['/home/b/projects/speech_command/tts.py', "I'm up!", '&'])
 
     for phrase in LiveSpeech(): #listen to mic
         if len(pSplit) != 0 and pSplit[0] == 'acer':
@@ -123,7 +111,7 @@ def runMain():
 
         if pSplitLen > 0 and pSplit[0] == 'acer' and newActivate: #activates voice command when hearing "Acer"
             Popen(['play', '-v 0.7', '-r 70k', scDir + 'audio/activate.wav'])
-            Popen(['notify-send', '-t', '5000', 'Voice Command', 'Activated'])
+            Popen(['notify-send', '-t', '3000', 'Voice Command', 'Activated'])
             trayIconStatus('active')
             newActivate = False
                 
@@ -132,7 +120,7 @@ def runMain():
                 closeProg()
             elif pSplit[1] == 'deactivate': #stop listening for commands
                 Popen(['play', '-v 0.7', scDir + 'audio/deactivate.wav'])
-                Popen(['notify-send', '-t', '5000', 'Voice Command', 'Deactivated'])
+                Popen(['notify-send', '-t', '3000', 'Voice Command', 'Deactivated'])
                 trayIconStatus('inactive')
                 newActivate = True
                 pSplit = []
