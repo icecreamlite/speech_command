@@ -1,14 +1,5 @@
 #!/home/b/projects/speech_command/venv/bin/python3
 
-
-#add command,automatically opens train.txt and website to upload traint.txt
-#add notifier every 30 mins
-#acer dict
-#timer dict
-#automate softlink creation
-#study multiprocessing (youtube?) so systrayicon can be in here
-#train pocketsphinx voice
-
 """
 To modify dictionary:
 Add words to train.txt in venv/lib/python3.6/site-packages/pocketsphinx/model
