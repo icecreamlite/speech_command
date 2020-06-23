@@ -19,9 +19,15 @@ Copy .dic and .lm file to model and rename .dic file to cmudict-en-us.dict
     and .lm file to en-us.lm.bin while saving the previus one
 """
 
-from pocketsphinx import LiveSpeech
-from subprocess import Popen, PIPE
-from os import getpid
+if __name__ == '__main__':
+    from pocketsphinx import LiveSpeech
+    #from os import getpid
+
+    #pidStream = open('/home/b/projects/speech_command/sc_pid.txt', 'w')
+    #pidStream.write(str(getpid()))
+    #pidStream.close()
+    
+from subprocess import Popen
 import pyttsx3
 import sys
 
@@ -71,89 +77,97 @@ trig = {'desktop': deskt,
         'connect': con}
 
 
-def killTrayIcon():
-    for line in open('/home/b/projects/speech_command/show_icon_pid.txt', 'r'):
-        Popen(['kill', f'{int(line)}']) #indent this in if comments are removed     
+#def killTrayIcon():
+    #Popen(['killall', 'show_icon.py'])
+    #for line in open('/home/b/projects/speech_command/show_icon_pid.txt', 'r'):
+        #Popen(['kill', f'{int(line)}']) #indent this in if comments are removed     
 
 def closeProg():
-    Popen(['notify-send', '-t', '5000', 'Voice Command', '"Exiting"'])
+    #killTrayIcon()
+    Popen(['notify-send', '-t', '5000', 'Voice Command', 'Exiting'])
     engine.say('Goodbye')
     engine.runAndWait()
-    killTrayIcon()
-    sys.exit()
+    Popen([scDir + 'bash_scripts/terminate.sh'])
+    #for line in open('/home/b/projects/speech_command/sc_pid.txt', 'r'):
+        #Popen([scDir + 'bash_scripts/terminate.sh', f'{int(line)}'])
 
 def restartProg():
+    Popen(['notify-send', '-t', '5000', 'Voice Command', 'Restarting'])
     engine.say('Restarting')
     engine.runAndWait()   
-    killTrayIcon()
-    Popen([scDir + 'bash_scripts/restart.sh', f'{getpid()}'])
+    Popen([scDir + 'bash_scripts/restart.sh'])
+    #for line in open(scDir + 'sc_pid.txt', 'r'):
+        #Popen([scDir + 'bash_scripts/restart.sh', f'{int(line)}'])
 
-def errorMessage():
-    Popen(['notify-send', '-t', '5000', 'Voice Command', f'Failed: "{" ".join(pSplit[1:]).title()}" command does not exist'])
+def errorMessage(pArr):
+    Popen(['notify-send', '-t', '5000', 'Voice Command', f'Failed: "{" ".join(pArr[1:]).title()}" command does not exist'])
     engine.say("Failed")
-    engine.runAndWait()    
+    engine.runAndWait()
 
 def trayIconStatus(status):
     if status == 'inactive':
-        filename = "/home/b/projects/speech_command/icons/inactive.ico"
+        filename = scDir + "icons/inactive.ico"
     elif status == 'active':
-        filename = "/home/b/projects/speech_command/icons/active.ico"
+        filename = scDir + "icons/active.ico"
 
     global isOpen
 
     if isOpen:
-        killTrayIcon()
+        Popen(['killall', 'show_icon.py'])
     else:
         isOpen = True
 
     Popen([scDir + 'bash_scripts/show_icon.sh', f'{filename} {status}'])
 
-def executeVoiceCommand():     
+def executeVoiceCommand(pArr):     
     try:
-        Popen(trig[pSplit[1]][pSplit[2]])
+        Popen(trig[pArr[1]][pArr[2]])
         Popen(['notify-send', '-t', '5000', 'Voice Command', \
-              f'"{" ".join(pSplit[1:]).title()}"'])        
-        engine.say(' '.join(pSplit[1:]))
+              f'"{" ".join(pArr[1:]).title()}"'])        
+        engine.say(' '.join(pArr[1:]))
         engine.runAndWait()   
     except:
-        errorMessage()    
+        errorMessage(pArr)
+
+def runMain():
+
+    pSplit = [] #initialize command list
+    newActivate = True #check if Acer is active
+
+    Popen(['notify-send', '-t', '5000', 'Voice Command', "I'm up!"])
+    trayIconStatus('inactive')
+    engine.say("I'm up!")
+    engine.runAndWait()
+
+    for phrase in LiveSpeech(): #listen to mic
+        if len(pSplit) != 0 and pSplit[0] == 'acer':
+            pSplit = pSplit[:1] + str(phrase).lower().split()
+        else:
+            pSplit = str(phrase).lower().split()
+
+        pSplitLen = len(pSplit)
+
+        if pSplitLen > 0 and pSplit[0] == 'acer' and newActivate: #activates voice command when hearing "Acer"
+            Popen(['play', '-v 0.7', '-r 70k', scDir + 'audio/activate.wav'])
+            Popen(['notify-send', '-t', '5000', 'Voice Command', 'Activated'])
+            trayIconStatus('active')
+            newActivate = False
+                
+        if pSplitLen == 2 and pSplit[0] == 'acer':
+            if pSplit[1] == 'terminate': #exit/kill/terminate program
+                closeProg()
+            elif pSplit[1] == 'deactivate': #stop listening for commands
+                Popen(['play', '-v 0.7', scDir + 'audio/deactivate.wav'])
+                Popen(['notify-send', '-t', '5000', 'Voice Command', 'Deactivated'])
+                trayIconStatus('inactive')
+                newActivate = True
+                pSplit = []
+            elif pSplit[1] == 'restart': #restarts the program. Useful for restarting if there are changes in script
+                restartProg()
+
+        if pSplitLen == 3 and pSplit[0] == 'acer' and pSplit[1] in trig.keys(): #execute command after hearing valid command
+            executeVoiceCommand(pSplit)
 
 
-pSplit = [] #initialize command list
-newActivate = True 
-
-Popen(['notify-send', '-t', '5000', 'Voice Command', "I'm up!"])
-trayIconStatus('inactive')
-engine.say("I'm up!")
-engine.runAndWait()
-
-
-for phrase in LiveSpeech(): #listen to mic
-    if len(pSplit) != 0 and pSplit[0] == 'acer':
-        pSplit = pSplit[:1] + str(phrase).lower().split()
-    else:
-        pSplit = str(phrase).lower().split()
-            
-    pSplitLen = len(pSplit)
-
-    if pSplitLen > 0 and pSplit[0] == 'acer' and newActivate: #activates voice command when hearing "Acer"
-        Popen(['play', '-v 0.7', '-r 70k', '/home/b/projects/speech_command/audio/activate.wav'])
-        Popen(['notify-send', '-t', '5000', 'Voice Command', 'Activated'])
-        trayIconStatus('active')
-        newActivate = False
-        
-    if pSplitLen == 2 and pSplit[0] == 'acer':
-        if pSplit[1] == 'terminate': #exit/kill/terminate program
-            closeProg()
-        elif pSplit[1] == 'deactivate': #stop listening for commands
-            Popen(['play', '-v 0.7', '/home/b/projects/speech_command/audio/deactivate.wav'])
-            Popen(['notify-send', '-t', '5000', 'Voice Command', 'Deactivated'])
-            trayIconStatus('inactive')
-            newActivate = True
-            pSplit = []
-        elif pSplit[1] == 'restart': #restarts the program. Useful for restarting if there are changes in script
-            restartProg()
-
-        
-    if pSplitLen == 3 and pSplit[0] == 'acer' and pSplit[1] in trig.keys(): #execute command after hearing valid command
-        executeVoiceCommand()
+if __name__ == '__main__':
+    runMain()
