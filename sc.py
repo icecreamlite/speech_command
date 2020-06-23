@@ -1,7 +1,5 @@
 #!/home/b/projects/speech_command/venv/bin/python3
 
-#create sh for wav
-
 """
 To modify dictionary:
 Add words to train.txt in venv/lib/python3.6/site-packages/pocketsphinx/model
@@ -110,8 +108,7 @@ def runMain():
         pSplitLen = len(pSplit)
 
         if pSplitLen > 0 and pSplit[0] == 'acer' and newActivate: #activates voice command when hearing "Acer"
-            Popen(['play', '-v 0.7', '-r 70k', scDir + 'audio/activate.wav'])
-            Popen(['notify-send', '-t', '3000', 'Voice Command', 'Activated'])
+            Popen([scDir + 'bash_scripts/status_alert.sh', 'Activated', 'activate.wav'])
             trayIconStatus('active')
             newActivate = False
                 
@@ -119,8 +116,7 @@ def runMain():
             if pSplit[1] == 'terminate': #exit/kill/terminate program
                 closeProg()
             elif pSplit[1] == 'deactivate': #stop listening for commands
-                Popen(['play', '-v 0.7', scDir + 'audio/deactivate.wav'])
-                Popen(['notify-send', '-t', '3000', 'Voice Command', 'Deactivated'])
+                Popen([scDir + 'bash_scripts/status_alert.sh', 'Deactivated', 'deactivate.wav'])
                 trayIconStatus('inactive')
                 newActivate = True
                 pSplit = []
