@@ -1,9 +1,11 @@
 #!/home/b/projects/speech_command/venv/bin/python3
 
 from tkinter import *
+from subprocess import Popen
 import sc
 
 comm = 'acer '
+scDir = '/home/b/projects/speech_command/'
 
 def getComm(): #Popup Entry widget, save typewritten and exit when <Return>
     root = Tk()
@@ -33,11 +35,11 @@ def getComm(): #Popup Entry widget, save typewritten and exit when <Return>
     cLen = len(cSplit)
     if cLen == 2:
         if cSplit[1] == 'terminate':
-            sc.closeProg()
+            Popen([scDir + 'bash_scripts/terminate.sh'])
         elif cSplit[1] == 'restart':
-            sc.restartProg()
+            Popen([scDir + 'bash_scripts/restart.sh', scDir])
         else:
-            sc.errorMessage(cSplit)
+            Popen([scDir + 'bash_scripts/notify_tts.sh', f'Failed: "{" ".join(cSplit[1:]).title()}" command does not exist', 'Failed'])
     elif cLen > 2:
         sc.executeVoiceCommand(cSplit)
 

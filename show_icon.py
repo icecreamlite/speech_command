@@ -1,13 +1,10 @@
 #!/home/b/projects/speech_command/venv/bin/python3
 
 import PySimpleGUIQt as st
-import sys, sc,  manual_command
-#from os import getpid
+import sys, manual_command
+from subprocess import Popen
 
-
-#pidStream = open('/home/b/projects/speech_command/show_icon_pid.txt', 'w')
-#pidStream.write(str(getpid()))
-#pidStream.close()
+scDir = '/home/b/projects/speech_command/'
 
 if sys.argv[2] == 'inactive':
     tt = 'Say "Acer" to activate'
@@ -28,12 +25,12 @@ while True:
         doub_clicked = tray.read(timeout=150)
 
         if doub_clicked == '__ACTIVATED__':
-            sc.restartProg()
+            Popen([scDir + 'bash_scripts/restart.sh', scDir])
         
         else:
             manual_command.getComm()
 
     elif clicked == 'Exit':
-        sc.closeProg()
+        Popen([scDir + 'bash_scripts/terminate.sh'])
     elif clicked == 'Restart':
-        sc.restartProg()
+        Popen([scDir + 'bash_scripts/restart.sh', scDir])

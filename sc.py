@@ -12,7 +12,6 @@ Copy .dic and .lm file to model and rename .dic file to cmudict-en-us.dict
 if __name__ == '__main__':
     from pocketsphinx import LiveSpeech    
 from subprocess import Popen
-import sys
 
 isOpen = False #check if icon is open
 
