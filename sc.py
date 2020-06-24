@@ -37,7 +37,7 @@ op = {'browser':'firefox',
       'messenger': ['firefox', 'messenger.com'],
       'model': ['dolphin', scDir + 'venv/lib/python3.6/site-packages/pocketsphinx/model'],
       'notes':['firefox', 'https://onedrive.live.com/redir?resid=BB111DB5197D5585%21338&page=Edit&wd=target%28Quick%20Notes.one%7Cfa9043aa-1386-9546-a932-5aa0da199f45%2FCoins.ph%20Load%20Promo%20Codes%7C15398123-b4a1-4d1c-8c44-73b967d39df1%2F%29&wdorigin=703'],
-      'store': '/home/b/projects/sari_store_prices/ssp.sh',
+      'store': '/home/b/projects/sari_store_prices/ssp.py',
       'terminal': ['konsole'],
       'trainer': ['firefox', 'http://www.speech.cs.cmu.edu/tools/lmtool-new.html'],
       'youtube':['firefox', 'youtube.com']}
