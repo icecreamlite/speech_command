@@ -1,2 +1,5 @@
 speech_command.py
 speech_command_new.py
+__pycache__/
+venv/
+.vscode/
