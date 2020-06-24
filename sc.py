@@ -56,15 +56,13 @@ trig = {'desktop': deskt,
         'connect': con}   
 
 def closeProg():
-    #killTrayIcon()
-    Popen([scDir + 'bash_scripts/terminate.sh', '&'])
+    Popen([scDir + 'bash_scripts/terminate.sh'])
 
 def restartProg():
-    Popen([scDir + 'bash_scripts/restart.sh', '&'])
+    Popen([scDir + 'bash_scripts/restart.sh'])
 
 def errorMessage(pArr):
-    Popen(['notify-send', '-t', '3000', 'Voice Command', f'Failed: "{" ".join(pArr[1:]).title()}" command does not exist'])
-    Popen(['/home/b/projects/speech_command/tts.py', 'Failed', '&'])
+    Popen([scDir + 'bash_scripts/notify_tts.sh', f'Failed: "{" ".join(pArr[1:]).title()}" command does not exist', 'Failed'])
 
 def trayIconStatus(status):
     if status == 'inactive':
@@ -84,9 +82,8 @@ def trayIconStatus(status):
 def executeVoiceCommand(pArr):     
     try:
         Popen(trig[pArr[1]][pArr[2]])
-        Popen(['notify-send', '-t', '3000', 'Voice Command', \
-              f'"{" ".join(pArr[1:]).title()}"'])
-        Popen(['/home/b/projects/speech_command/tts.py', f'{" ".join(pArr[1:])}', '&'])       
+        Popen([scDir + 'bash_scripts/notify_tts.sh', f'"{" ".join(pArr[1:]).title()}"', f'{" ".join(pArr[1:])}'])
+     
     except:
         errorMessage(pArr)
 
@@ -95,9 +92,8 @@ def runMain():
     pSplit = [] #initialize command list
     newActivate = True #check if Acer is active
 
-    Popen(['notify-send', '-t', '3000', 'Voice Command', "I'm up!"])
     trayIconStatus('inactive')
-    Popen(['/home/b/projects/speech_command/tts.py', "I'm up!", '&'])
+    Popen([scDir + 'bash_scripts/notify_tts.sh', "I'm up!", "I'm up!"])
 
     for phrase in LiveSpeech(): #listen to mic
         if len(pSplit) != 0 and pSplit[0] == 'acer':
@@ -108,7 +104,7 @@ def runMain():
         pSplitLen = len(pSplit)
 
         if pSplitLen > 0 and pSplit[0] == 'acer' and newActivate: #activates voice command when hearing "Acer"
-            Popen([scDir + 'bash_scripts/status_alert.sh', 'Activated', 'activate.wav'])
+            Popen([scDir + 'bash_scripts/status_alert.sh', 'Activated', scDir + 'audio/activate.wav'])
             trayIconStatus('active')
             newActivate = False
                 
@@ -116,7 +112,7 @@ def runMain():
             if pSplit[1] == 'terminate': #exit/kill/terminate program
                 closeProg()
             elif pSplit[1] == 'deactivate': #stop listening for commands
-                Popen([scDir + 'bash_scripts/status_alert.sh', 'Deactivated', 'deactivate.wav'])
+                Popen([scDir + 'bash_scripts/status_alert.sh', 'Deactivated', scDir + 'audio/deactivate.wav'])
                 trayIconStatus('inactive')
                 newActivate = True
                 pSplit = []
