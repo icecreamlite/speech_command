@@ -59,7 +59,7 @@ def closeProg():
     Popen([scDir + 'bash_scripts/terminate.sh'])
 
 def restartProg():
-    Popen([scDir + 'bash_scripts/restart.sh'])
+    Popen([scDir + 'bash_scripts/restart.sh', scDir])
 
 def errorMessage(pArr):
     Popen([scDir + 'bash_scripts/notify_tts.sh', f'Failed: "{" ".join(pArr[1:]).title()}" command does not exist', 'Failed'])
@@ -77,7 +77,7 @@ def trayIconStatus(status):
     else:
         isOpen = True
 
-    Popen([scDir + 'bash_scripts/show_icon.sh', f'{filename} {status}'])
+    Popen([scDir + 'bash_scripts/show_icon.sh', scDir, f'{filename} {status}'])
 
 def executeVoiceCommand(pArr):     
     try:
